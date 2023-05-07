@@ -1,3 +1,5 @@
+from collections import Counter
+
 import numpy as np
 import random
 import pandas as pd
@@ -98,3 +100,16 @@ def get_subseq_gc_contents(seq, subseq_len):
 
 def translate_seq_to_aminoacids(seq, start_index = 0):
     return [DNA_Codons[seq[index:index + 3]] for index in range(start_index, len(seq) - 2, 3)]
+
+def return_specified_codon_usage(seq, aminoacid):
+    occurance_list = []
+    for i in range(0, len(seq) - 2, 3):
+        tmp = seq[i:i + 3]
+        if DNA_Codons[seq[i:i + 3]] == aminoacid:
+            occurance_list.append(tmp)
+
+    result = dict(Counter(occurance_list))
+    total_weight = sum(result.values())
+    for seq in result:
+        result[seq] = round(result[seq] / total_weight, 2)
+    return result
