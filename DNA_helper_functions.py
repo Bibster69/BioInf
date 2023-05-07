@@ -82,6 +82,14 @@ def translate_to_mRNA(seq):
     for s in list(seq):
         print(dict.get(s))
 
+def get_hamming_dist(seq_1, seq_2):
+    counter = 0
+    for l1, l2 in zip(seq_1, seq_2):
+        if l1 != l2:
+            counter += 1
+
+    return counter
+
 def get_reverse_complement_seq(seq):
     dict = {'T': 'a', 'G': 'c', 'A': 't', 'C': 'g'}
     result = ''
@@ -112,4 +120,54 @@ def return_specified_codon_usage(seq, aminoacid):
     total_weight = sum(result.values())
     for seq in result:
         result[seq] = round(result[seq] / total_weight, 2)
+    return result
+
+#rybosome
+def get_reading_frames_from_seq(seq):
+    frames = []
+    frames.append(translate_seq_to_aminoacids(seq, 0))
+    frames.append(translate_seq_to_aminoacids(seq, 1))
+    frames.append(translate_seq_to_aminoacids(seq, 2))
+    frames.append(translate_seq_to_aminoacids(get_reverse_complement_seq(seq), 0))
+    frames.append(translate_seq_to_aminoacids(get_reverse_complement_seq(seq), 1))
+    frames.append(translate_seq_to_aminoacids(get_reverse_complement_seq(seq), 2))
+
+
+
+    return frames
+
+def get_protein_from_frame(frame):
+    found_protein = []
+    all_found_proteins = []
+    for aminoacid in frame:
+        if aminoacid == '_':
+            if found_protein:
+                for x in found_protein:
+                    all_found_proteins.append(x)
+                found_protein = []
+        else:
+            if aminoacid == 'M':
+                found_protein.append("") # żeby for zadzałał
+            for i in range(len(found_protein)): # jeśli nie znalazł M to nic nie dodaje
+                found_protein[i] += aminoacid
+    return all_found_proteins
+
+
+def get_proteins_from_ORF(seq, start_index = 0, end_index = 0, ordered = False):
+
+    reading_frames = None
+    if end_index > start_index:
+        reading_frames = get_reading_frames_from_seq(seq[start_index:end_index])
+    else:
+        reading_frames = get_reading_frames_from_seq(seq)
+
+    result = []
+    for frame in reading_frames:
+        found_proteins = get_protein_from_frame(frame)
+        for protein in found_proteins:
+            result.append(protein)
+
+    if ordered:
+        return sorted(result, key = len, reverse = True) # reverse = true -> od najwiekszych do najmniejszych
+
     return result
