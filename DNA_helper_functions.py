@@ -56,7 +56,6 @@ RNA_Codons = {
 }
 
 
-
 def seq_valid_check(seq):
     seq = np.unique(np.array(list(seq.upper())))
     nucleotides = ['A', 'C', 'T', 'G']
